@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pattern Book — Add New Pattern</title>
+<title>Pattern Book — Add Pattern / Anti-Pattern</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nes.css@latest/css/nes.min.css" />
@@ -18,13 +18,28 @@
   </div>
 
   <div class="pq-banner">
-    <h1 class="pixel-font">Pattern Generator</h1>
-    <p>Fill out the form below to generate a formatted JS object ready to paste into <code>js/data.js</code>.</p>
+    <h1 class="pixel-font">Codex Entry Generator</h1>
+    <p>Generate formatted JS code ready to paste into <code>PATTERNS</code> or <code>ANTIPATTERNS</code> in <code>js/data.js</code>.</p>
   </div>
 
   <div class="pq-wrap">
 
     <form id="pattern-form" class="pq-form-wrap" onsubmit="event.preventDefault();">
+
+      <!-- Entry Type Switcher -->
+      <section class="nes-container with-title is-rounded pq-form-section" style="border-color: var(--pq-gold);">
+        <p class="title">Catalog Entry Type</p>
+        <div style="display: flex; gap: 25px; flex-wrap: wrap;">
+          <label>
+            <input type="radio" class="nes-radio" name="entry-type" value="pattern" checked />
+            <span>Design Pattern</span>
+          </label>
+          <label>
+            <input type="radio" class="nes-radio" name="entry-type" value="antipattern" />
+            <span>Anti-Pattern</span>
+          </label>
+        </div>
+      </section>
 
       <!-- 1. Basic Info -->
       <section class="nes-container with-title is-rounded pq-form-section">
@@ -32,29 +47,27 @@
 
         <div class="pq-form-grid">
           <div class="nes-field">
-            <label for="p-id">Pattern ID (Slug):</label>
-            <input type="text" id="p-id" class="nes-input" placeholder="e.g. factory-method" required />
+            <label for="p-id">Entry ID (Slug):</label>
+            <input type="text" id="p-id" class="nes-input" placeholder="e.g. god-object" required />
             <span class="pq-field-hint">Unique lowercase hyphenated identifier</span>
           </div>
 
           <div class="nes-field">
-            <label for="p-name">Pattern Name:</label>
-            <input type="text" id="p-name" class="nes-input" placeholder="e.g. Factory Method" required />
+            <label for="p-name">Name:</label>
+            <input type="text" id="p-name" class="nes-input" placeholder="e.g. God Object (The Blob)" required />
           </div>
 
           <div class="nes-field">
             <label for="p-category">Category (Realm):</label>
             <div class="nes-select">
               <select id="p-category" required>
-                <option value="creational">Creational Realm</option>
-                <option value="structural">Structural Realm</option>
-                <option value="behavioral">Behavioral Realm</option>
+                <!-- Populated dynamically via JS based on type -->
               </select>
             </div>
           </div>
 
           <div class="nes-field">
-            <label for="p-difficulty">Difficulty (1 - 3 Stars):</label>
+            <label for="p-difficulty" id="p-difficulty-label">Difficulty (1 - 3 Stars):</label>
             <div class="nes-select">
               <select id="p-difficulty">
                 <option value="1">1 Star (★☆☆)</option>
@@ -67,105 +80,163 @@
 
         <div class="nes-field" style="margin-top: 15px;">
           <label for="p-summary">Summary (Short card blurb):</label>
-          <input type="text" id="p-summary" class="nes-input" placeholder="e.g. Define an interface for creating an object..." />
+          <input type="text" id="p-summary" class="nes-input" placeholder="e.g. A single class that handles too many responsibilities..." />
         </div>
       </section>
 
-      <!-- 2. Intent & Motivation -->
+      <!-- ================= DESIGN PATTERN FIELDS ================= -->
+      <div id="pattern-fields-wrap">
+        <!-- 2. Intent & Motivation -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">2. Intent & Motivation</p>
+
+          <div class="nes-field">
+            <label for="p-intent">Intent:</label>
+            <textarea id="p-intent" class="nes-textarea" rows="3" placeholder="What does this pattern do?"></textarea>
+          </div>
+
+          <div class="nes-field" style="margin-top: 15px;">
+            <label for="p-motivation">Motivation:</label>
+            <textarea id="p-motivation" class="nes-textarea" rows="4" placeholder="Why is this pattern needed? What problem does it solve?"></textarea>
+          </div>
+        </section>
+
+        <!-- 3. Applicability -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">3. Applicability</p>
+          <p class="pq-field-hint">When should you use this pattern?</p>
+
+          <div id="applicability-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-success is-small" id="add-applicability-btn">+ Add Bullet Point</button>
+        </section>
+
+        <!-- 4. Structure Diagram -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">4. Structure Diagram (SVG)</p>
+
+          <div class="nes-field">
+            <label for="p-structureSvg">Raw SVG Markup or HTML:</label>
+            <textarea id="p-structureSvg" class="nes-textarea" rows="5" placeholder='<svg viewBox="0 0 420 190">...</svg>'></textarea>
+          </div>
+          <div style="margin-top: 10px;">
+            <button type="button" class="nes-btn is-normal is-small" id="insert-svg-template-btn">Insert SVG Helper Template</button>
+          </div>
+        </section>
+
+        <!-- 5. Participants -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">5. Participants</p>
+          <p class="pq-field-hint">Classes/objects participating in the pattern and their responsibilities.</p>
+
+          <div id="participants-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-success is-small" id="add-participant-btn">+ Add Participant</button>
+        </section>
+
+        <!-- 6. Collaboration & Consequences -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">6. Collaboration & Consequences</p>
+
+          <div class="nes-field">
+            <label for="p-collaboration">Collaboration:</label>
+            <textarea id="p-collaboration" class="nes-textarea" rows="3" placeholder="How participants interact to perform their responsibilities."></textarea>
+          </div>
+
+          <div class="nes-field" style="margin-top: 15px;">
+            <label>Consequences:</label>
+            <p class="pq-field-hint">Pros, cons, and trade-offs of using this pattern.</p>
+            <div id="consequences-list" class="pq-dynamic-list"></div>
+            <button type="button" class="nes-btn is-success is-small" id="add-consequence-btn">+ Add Consequence</button>
+          </div>
+        </section>
+
+        <!-- Known Uses -->
+        <section class="nes-container with-title is-rounded pq-form-section">
+          <p class="title">7. Known Uses</p>
+          <div class="nes-field">
+            <div id="known-uses-list" class="pq-dynamic-list"></div>
+            <button type="button" class="nes-btn is-success is-small" id="add-known-use-btn">+ Add Known Use</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= ANTI-PATTERN FIELDS ================= -->
+      <div id="antipattern-fields-wrap" style="display: none;">
+        <!-- Problem & Context -->
+        <section class="nes-container with-title is-rounded pq-form-section" style="border-color: var(--pq-red);">
+          <p class="title" style="color: var(--pq-red);">2. Problem & Context</p>
+
+          <div class="nes-field">
+            <label for="ap-problem">Problem:</label>
+            <textarea id="ap-problem" class="nes-textarea" rows="3" placeholder="What core problem or architectural breakdown occurs?"></textarea>
+          </div>
+
+          <div class="nes-field" style="margin-top: 15px;">
+            <label for="ap-context">Context:</label>
+            <textarea id="ap-context" class="nes-textarea" rows="4" placeholder="Under what circumstances or pressures does this anti-pattern emerge?"></textarea>
+          </div>
+        </section>
+
+        <!-- Forces -->
+        <section class="nes-container with-title is-rounded pq-form-section" style="border-color: var(--pq-red);">
+          <p class="title" style="color: var(--pq-red);">3. Forces</p>
+          <p class="pq-field-hint">Pressures or tradeoffs that push developers into this trap.</p>
+
+          <div id="forces-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-error is-small" id="add-force-btn">+ Add Force</button>
+        </section>
+
+        <!-- Supposed & Refactored Solutions -->
+        <section class="nes-container with-title is-rounded pq-form-section" style="border-color: var(--pq-red);">
+          <p class="title" style="color: var(--pq-red);">4. Pitfall vs Refactored Solution</p>
+
+          <div class="nes-field">
+            <label for="ap-supposed">Supposed Solution (The Pitfall):</label>
+            <textarea id="ap-supposed" class="nes-textarea" rows="3" placeholder="What people mistakenly do, thinking it solves the problem..."></textarea>
+          </div>
+
+          <div class="nes-field" style="margin-top: 15px;">
+            <label for="ap-refactored">Refactored Solution (The Real Fix):</label>
+            <textarea id="ap-refactored" class="nes-textarea" rows="4" placeholder="How to actually restructure or refactor the code/architecture properly..."></textarea>
+          </div>
+        </section>
+
+        <!-- Example -->
+        <section class="nes-container with-title is-rounded pq-form-section" style="border-color: var(--pq-red);">
+          <p class="title" style="color: var(--pq-red);">5. Example Scenario</p>
+
+          <div class="nes-field">
+            <label for="ap-example">Example:</label>
+            <textarea id="ap-example" class="nes-textarea" rows="3" placeholder="Concrete scenario (e.g. A 5,000-line OrderManager class...)"></textarea>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= COMMON CODE & RELATED FIELDS ================= -->
       <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">2. Intent & Motivation</p>
-
-        <div class="nes-field">
-          <label for="p-intent">Intent:</label>
-          <textarea id="p-intent" class="nes-textarea" rows="3" placeholder="What does this pattern do?"></textarea>
-        </div>
-
-        <div class="nes-field" style="margin-top: 15px;">
-          <label for="p-motivation">Motivation:</label>
-          <textarea id="p-motivation" class="nes-textarea" rows="4" placeholder="Why is this pattern needed? What problem does it solve?"></textarea>
-        </div>
-      </section>
-
-      <!-- 3. Applicability -->
-      <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">3. Applicability</p>
-        <p class="pq-field-hint">When should you use this pattern?</p>
-
-        <div id="applicability-list" class="pq-dynamic-list"></div>
-        <button type="button" class="nes-btn is-success is-small" id="add-applicability-btn">+ Add Bullet Point</button>
-      </section>
-
-      <!-- 4. Structure Diagram -->
-      <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">4. Structure Diagram (SVG)</p>
-
-        <div class="nes-field">
-          <label for="p-structureSvg">Raw SVG Markup or HTML:</label>
-          <textarea id="p-structureSvg" class="nes-textarea" rows="5" placeholder='<svg viewBox="0 0 420 190">...</svg>'></textarea>
-        </div>
-        <div style="margin-top: 10px;">
-          <button type="button" class="nes-btn is-normal is-small" id="insert-svg-template-btn">Insert SVG Helper Template</button>
-        </div>
-      </section>
-
-      <!-- 5. Participants -->
-      <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">5. Participants</p>
-        <p class="pq-field-hint">Classes/objects participating in the pattern and their responsibilities.</p>
-
-        <div id="participants-list" class="pq-dynamic-list"></div>
-        <button type="button" class="nes-btn is-success is-small" id="add-participant-btn">+ Add Participant</button>
-      </section>
-
-      <!-- 6. Collaboration & Consequences -->
-      <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">6. Collaboration & Consequences</p>
-
-        <div class="nes-field">
-          <label for="p-collaboration">Collaboration:</label>
-          <textarea id="p-collaboration" class="nes-textarea" rows="3" placeholder="How participants interact to perform their responsibilities."></textarea>
-        </div>
-
-        <div class="nes-field" style="margin-top: 15px;">
-          <label>Consequences:</label>
-          <p class="pq-field-hint">Pros, cons, and trade-offs of using this pattern.</p>
-          <div id="consequences-list" class="pq-dynamic-list"></div>
-          <button type="button" class="nes-btn is-success is-small" id="add-consequence-btn">+ Add Consequence</button>
-        </div>
-      </section>
-
-      <!-- 7. Implementations -->
-      <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">7. Implementation Code</p>
-        <p class="pq-field-hint">Code examples grouped by programming language and class/module.</p>
+        <p class="title">Code Examples / Implementations</p>
+        <p class="pq-field-hint">Code blocks grouped by programming language and class/module (e.g. Anti-Pattern Code vs Refactored Code).</p>
 
         <div id="implementations-list" class="pq-dynamic-list"></div>
         <button type="button" class="nes-btn is-success is-small" id="add-implementation-btn">+ Add Language Implementation</button>
       </section>
 
-      <!-- 8. Known Uses & Related Patterns -->
       <section class="nes-container with-title is-rounded pq-form-section">
-        <p class="title">8. Known Uses & Related Patterns</p>
+        <p class="title">Related Patterns / Anti-Patterns</p>
 
         <div class="nes-field">
-          <label>Known Uses:</label>
-          <div id="known-uses-list" class="pq-dynamic-list"></div>
-          <button type="button" class="nes-btn is-success is-small" id="add-known-use-btn">+ Add Known Use</button>
-        </div>
-
-        <div class="nes-field" style="margin-top: 15px;">
-          <label>Related Pattern IDs:</label>
-          <p class="pq-field-hint">IDs of existing patterns (e.g. singleton, observer, adapter)</p>
+          <label>Related Entry IDs:</label>
+          <p class="pq-field-hint">IDs of existing patterns or anti-patterns (e.g. singleton, observer, god-object)</p>
           <div id="related-list" class="pq-dynamic-list"></div>
-          <button type="button" class="nes-btn is-success is-small" id="add-related-btn">+ Add Related Pattern</button>
+          <button type="button" class="nes-btn is-success is-small" id="add-related-btn">+ Add Related Entry</button>
         </div>
       </section>
 
       <!-- Action Controls -->
       <div class="pq-actions-bar">
-        <button type="button" id="generate-btn" class="nes-btn is-primary">Generate Pattern Code</button>
-        <button type="button" id="load-example-btn" class="nes-btn is-warning">Load Example Data</button>
-        <button type="button" id="reset-btn" class="nes-btn is-error">Clear Form</button>
+        <button type="button" id="generate-btn" class="nes-btn is-primary">Generate Code</button>
+        <button type="button" id="load-example-pattern-btn" class="nes-btn is-warning">Load Example Pattern</button>
+        <button type="button" id="load-example-antipattern-btn" class="nes-btn is-error">Load Example Anti-Pattern</button>
+        <button type="button" id="reset-btn" class="nes-btn">Clear Form</button>
       </div>
 
     </form>
@@ -182,7 +253,7 @@
       </div>
 
       <div class="nes-container is-dark pq-code-box">
-        <pre><code id="output-code" class="language-javascript">// Complete the form above and click "Generate Pattern Code"...</code></pre>
+        <pre><code id="output-code" class="language-javascript">// Complete the form above and click "Generate Code"...</code></pre>
       </div>
 
       <!-- Live Preview Container -->

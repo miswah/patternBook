@@ -1,6 +1,6 @@
-# Pattern Book — a design pattern codex
+# Pattern Book — Design Pattern & Anti-Pattern Codex
 
-A static, dependency-free (vanilla JS) site for cataloguing design patterns,
+A static, dependency-free (vanilla JS) site for cataloguing design patterns and anti-patterns,
 styled with [NES.css](https://nostalgic-css.github.io/NES.css/). No build
 step, no framework — open `index.html` in a browser (or serve the folder)
 and it works.
@@ -8,22 +8,29 @@ and it works.
 ## Structure
 
 ```
-index.html        Home page: patterns grouped by realm (category)
-pattern.html       Detail page: reads ?id=xxx and renders every section
-add-pattern.html   Interactive form: builds pattern JS objects & JSON for easy copying
-css/style.css      Theme on top of NES.css (scanline background, UML
-                    diagram styling, language/class tab styling)
-js/data.js         <-- THE ONLY FILE YOU NEED TO EDIT to add patterns
-js/home.js         Renders the home page from data.js
-js/pattern.js       Renders the detail page from data.js
-js/add-pattern.js   Powers the pattern form, JS generator, clipboard copy & preview
+index.html        Home page: patterns & anti-patterns grouped by realm (category)
+pattern.html       Detail page: reads ?id=xxx and renders pattern/anti-pattern sections
+add-pattern.html   Interactive form: builds Pattern & Anti-Pattern JS objects & JSON
+css/style.css      Theme on top of NES.css (scanline background, UML styling, tabs)
+js/data.js         <-- THE ONLY FILE YOU NEED TO EDIT to add entries
+js/home.js         Renders home page codex realms from data.js
+js/pattern.js       Renders detail pages from data.js
+js/add-pattern.js   Powers the form switcher, JS/JSON generator, clipboard copy & live preview
 ```
 
-## Adding a new pattern
+## Adding Patterns & Anti-Patterns
 
-You can use the built-in **Pattern Generator form** at `add-pattern.html` (or click **+ Add New Pattern** on the home page) to fill out fields interactively, preview the pattern live, and click **Copy JS Object** to copy the ready-to-paste code directly into `PATTERNS` in `js/data.js`.
+You can use the built-in **Codex Entry Generator** at `add-pattern.html` (or click **+ Add New Pattern** on the home page):
+1. Select **Design Pattern** or **Anti-Pattern**.
+2. Fill out the fields interactively (or click **Load Example Pattern** / **Load Example Anti-Pattern** for a quick demo).
+3. Click **Toggle Live Preview** to preview how it looks.
+4. Click **Copy JS Object** to copy the formatted code directly to your clipboard and paste it into `PATTERNS` or `ANTIPATTERNS` in `js/data.js`.
 
-Alternatively, open `js/data.js` manually and add an object to the `PATTERNS` array. Copy an existing entry as a template — every field maps 1:1 onto a section of the detail page:
+---
+
+### Data Shapes (`js/data.js`)
+
+#### 1. Design Pattern Shape (`PATTERNS` array)
 
 | Field             | Section on the page          | Type                          |
 |-------------------|-------------------------------|--------------------------------|
@@ -34,55 +41,50 @@ Alternatively, open `js/data.js` manually and add an object to the `PATTERNS` ar
 | `participants`     | Participants                   | `{name, desc}[]`               |
 | `collaboration`    | Collaboration                  | string                         |
 | `consequences`     | Consequences                   | string[]                       |
-| `implementations`  | Implementation (tabs)          | see below                      |
+| `implementations`  | Implementation (tabs)          | `{language, classes: [{name, code}]}` |
 | `knownUses`        | Known Uses                     | string[]                       |
-| `related`          | Related Patterns               | array of other pattern `id`s   |
+| `related`          | Related Patterns               | array of pattern/anti-pattern `id`s |
 
-`category` must be one of the ids in `CATEGORIES` (`creational`,
-`structural`, `behavioral`) — add a new realm there if you need one.
+Categories must be one of `CATEGORIES`: `creational`, `structural`, `behavioral`.
 
-### Implementation shape (multi-language + multi-class tabs)
+#### 2. Anti-Pattern Shape (`ANTIPATTERNS` array)
+
+| Field                 | Section on the page              | Type                          |
+|-----------------------|-----------------------------------|--------------------------------|
+| `type`                | Must be `"antipattern"`          | string                         |
+| `problem`             | Problem                           | string                         |
+| `context`             | Context                           | string                         |
+| `forces`              | Forces                            | string[]                       |
+| `supposedSolution`    | Supposed Solution (The Pitfall)  | string                         |
+| `refactoredSolution`  | Refactored Solution (The Fix)     | string                         |
+| `example`             | Example Scenario                  | string                         |
+| `implementations`     | Sample & Refactored Code          | `{language, classes: [{name, code}]}` |
+| `related`             | Related Items                     | array of pattern/anti-pattern `id`s |
+
+Categories must be one of `ANTI_CATEGORIES`: `arch-antipattern`, `design-antipattern`, `coding-antipattern`.
+
+---
+
+### Implementation shape (multi-language + multi-class/block tabs)
 
 ```js
 implementations: [
   {
     language: "JavaScript",       // shown as a top-level tab
     classes: [
-      { name: "Subject", code: "class Subject { ... }" },
-      { name: "ConcreteSubject", code: "class ConcreteSubject ... " },
-      // one class -> no sub-tabs shown, just the code
-      // 2+ classes -> sub-tabs appear under the language tab
+      { name: "AntiPattern_GodObject", code: "class OrderSystem { ... }" },
+      { name: "Refactored_Solution", code: "class OrderProcessor { ... }" },
     ],
   },
-  {
-    language: "Python",
-    classes: [ /* ... */ ],
-  },
-],
+]
 ```
 
 Code blocks are syntax-highlighted with Prism. JavaScript, Java, and
-Python are wired up in `pattern.js` (`LANG_PRISM_CLASS`) — add a line
-there (and load the matching Prism component script in `pattern.html`)
-for any other language you use.
+Python are preconfigured in `pattern.js` (`LANG_PRISM_CLASS`).
 
-### Structure diagrams
-
-`structureSvg` is raw SVG, styled by the `.uml-*` classes in
-`style.css` so every diagram looks consistent. There's a small
-`svgBox(x, y, w, h, label, sub)` helper at the top of `data.js` for
-drawing a class box quickly — see the existing three patterns for
-worked examples of composing boxes, lines, and arrowheads. If you'd
-rather draw diagrams in a real tool, export as SVG and paste the
-markup in directly (or swap `structureSvg` for an `<img src="...">` —
-the wrapper `.pq-structure-wrap` div works with either).
+---
 
 ## Notes
 
-- Everything is loaded via `<script>` tags (no `fetch`/JSON), so the
-  site works straight off the filesystem (`file://`) with no local
-  server required.
-- NES.css, Google Fonts, and Prism are loaded from CDNs — an internet
-  connection is needed the first time each page loads.
-- Three fully worked patterns are included as a template: **Singleton**
-  (Creational), **Adapter** (Structural), **Observer** (Behavioral).
+- Everything is loaded via `<script>` tags (no `fetch`/JSON), so the site works straight off the filesystem (`file://`) with zero local server setup.
+- Includes worked design patterns (**Singleton**, **Adapter**, **Observer**) and anti-patterns (**God Object**, **Spaghetti Code**).

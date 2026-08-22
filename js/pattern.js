@@ -139,35 +139,56 @@ function renderPatternDetail(pattern, root = document.getElementById("pattern-ro
     root.innerHTML = `
       <section class="pq-section nes-container is-rounded">
         <h2>Pattern not found</h2>
-        <p>No pattern with specified id is catalogued.</p>
+        <p>No pattern or anti-pattern with specified id is catalogued.</p>
         <a class="nes-btn is-primary" href="index.html">Back to the Codex</a>
       </section>`;
     return;
   }
 
-  const cat = getCategory(pattern.category) || { label: pattern.category || "General", badge: "is-primary" };
+  const isAnti = pattern.type === "antipattern" || !!pattern.problem;
+  const cat = getCategory(pattern.category) || { label: pattern.category || "General", badge: isAnti ? "is-error" : "is-primary" };
   if (document.getElementById("pattern-root") === root) {
     document.title = `${pattern.name || "Pattern"} — Pattern Book`;
   }
 
+  let bodySectionsHtml = "";
+
+  if (isAnti) {
+    bodySectionsHtml = `
+      ${pattern.problem ? section("Problem", "nes-icon close is-small", `<p style="color:#e76e55; font-weight:bold;">${pattern.problem}</p>`) : ""}
+      ${pattern.context ? section("Context", "", `<p>${pattern.context}</p>`) : ""}
+      ${pattern.forces && pattern.forces.length ? section("Forces", "", renderList(pattern.forces)) : ""}
+      ${pattern.supposedSolution ? section("Supposed Solution (The Pitfall)", "nes-icon warning is-small", `<p>${pattern.supposedSolution}</p>`) : ""}
+      ${pattern.refactoredSolution ? section("Refactored Solution (The Fix)", "nes-icon trophy is-small", `<p>${pattern.refactoredSolution}</p>`) : ""}
+      ${pattern.example ? section("Example", "", `<p>${pattern.example}</p>`) : ""}
+      ${pattern.implementations && pattern.implementations.length ? section("Sample Code & Refactoring", "", `<div id="impl-root"></div>`) : ""}
+      ${pattern.related && pattern.related.length ? section("Related Patterns / Anti-Patterns", "", renderRelated(pattern.related)) : ""}
+    `;
+  } else {
+    bodySectionsHtml = `
+      ${pattern.intent ? section("Intent", "nes-icon trophy is-small", `<p>${pattern.intent}</p>`) : ""}
+      ${pattern.motivation ? section("Motivation", "", `<p>${pattern.motivation}</p>`) : ""}
+      ${pattern.applicability && pattern.applicability.length ? section("Applicability", "", renderList(pattern.applicability)) : ""}
+      ${pattern.structureSvg ? section("Structure", "", `<div class="pq-structure-wrap">${pattern.structureSvg}</div>`) : ""}
+      ${pattern.participants && pattern.participants.length ? section("Participants", "", renderParticipants(pattern.participants)) : ""}
+      ${pattern.collaboration ? section("Collaboration", "", `<p>${pattern.collaboration}</p>`) : ""}
+      ${pattern.consequences && pattern.consequences.length ? section("Consequences", "", renderList(pattern.consequences)) : ""}
+      ${pattern.implementations && pattern.implementations.length ? section("Implementation", "", `<div id="impl-root"></div>`) : ""}
+      ${pattern.knownUses && pattern.knownUses.length ? section("Known Uses", "", renderList(pattern.knownUses)) : ""}
+      ${pattern.related && pattern.related.length ? section("Related Patterns", "", renderRelated(pattern.related)) : ""}
+    `;
+  }
+
   root.innerHTML = `
-    <header class="pq-detail-head nes-container is-rounded">
+    <header class="pq-detail-head nes-container is-rounded" style="${isAnti ? "border-color: var(--pq-red);" : ""}">
       <span class="nes-badge"><span class="${cat.badge}">${cat.label}</span></span>
-      <h1 class="pixel-font" style="margin-top:12px;">${pattern.name || "Untitled Pattern"}</h1>
+      ${isAnti ? `<span class="nes-badge" style="margin-left: 8px;"><span class="is-error">Anti-Pattern</span></span>` : ""}
+      <h1 class="pixel-font" style="margin-top:12px; ${isAnti ? "color:#e76e55;" : ""}">${pattern.name || "Untitled"}</h1>
       <div class="pq-summary">${pattern.summary || ""}</div>
-      <div class="pq-stars" style="margin-top:8px;">${starRatingSmall(pattern.difficulty || 1)} difficulty</div>
+      <div class="pq-stars" style="margin-top:8px;">${starRatingSmall(pattern.difficulty || 1)} ${isAnti ? "severity" : "difficulty"}</div>
     </header>
 
-    ${pattern.intent ? section("Intent", "nes-icon trophy is-small", `<p>${pattern.intent}</p>`) : ""}
-    ${pattern.motivation ? section("Motivation", "", `<p>${pattern.motivation}</p>`) : ""}
-    ${pattern.applicability && pattern.applicability.length ? section("Applicability", "", renderList(pattern.applicability)) : ""}
-    ${pattern.structureSvg ? section("Structure", "", `<div class="pq-structure-wrap">${pattern.structureSvg}</div>`) : ""}
-    ${pattern.participants && pattern.participants.length ? section("Participants", "", renderParticipants(pattern.participants)) : ""}
-    ${pattern.collaboration ? section("Collaboration", "", `<p>${pattern.collaboration}</p>`) : ""}
-    ${pattern.consequences && pattern.consequences.length ? section("Consequences", "", renderList(pattern.consequences)) : ""}
-    ${pattern.implementations && pattern.implementations.length ? section("Implementation", "", `<div id="impl-root"></div>`) : ""}
-    ${pattern.knownUses && pattern.knownUses.length ? section("Known Uses", "", renderList(pattern.knownUses)) : ""}
-    ${pattern.related && pattern.related.length ? section("Related Patterns", "", renderRelated(pattern.related)) : ""}
+    ${bodySectionsHtml}
   `;
 
   if (pattern.implementations && pattern.implementations.length) {
