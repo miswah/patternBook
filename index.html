@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pattern Book — A Design Pattern Codex</title>
+<title>Pattern Book — A Design Pattern & Anti-Pattern Codex</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nes.css@latest/css/nes.min.css" />
@@ -13,13 +13,94 @@
 
   <div class="pq-banner">
     <h1 class="pixel-font"> Pattern Book </h1>
-    <p>A codex of design patterns.</p>
+    <p>A problem-solving codex for software design patterns & anti-patterns.</p>
     <div style="margin-top: 15px;">
-      <a href="add-pattern.html" class="nes-btn is-primary is-small">+ Add New Pattern</a>
+      <a href="add-pattern.html" class="nes-btn is-primary is-small">+ Add Pattern / Anti-Pattern</a>
     </div>
   </div>
 
-  <div class="pq-wrap" id="realms"></div>
+  <div class="pq-wrap">
+    <!-- Problem Search & Quick Filters -->
+    <div class="nes-container with-title is-rounded pq-search-container">
+      <p class="title">Problem Solver & Search</p>
+      
+      <div class="nes-field">
+        <label for="search-input">Search by problem, keyword, or pattern name:</label>
+        <input type="text" id="search-input" class="nes-input" placeholder="e.g. single instance, state, incompatible interface, monolith, tangled code..." />
+      </div>
+
+      <!-- Quick Problem Shortcuts -->
+      <div class="pq-quick-problems">
+        <span class="pq-quick-title">Quick Problem Finder:</span>
+        <div class="pq-chips-list">
+          <button type="button" class="nes-btn is-small pq-chip" data-search="single instance">⚡ Single Instance</button>
+          <button type="button" class="nes-btn is-small pq-chip" data-search="interface">🔌 Mismatched Interface</button>
+          <button type="button" class="nes-btn is-small pq-chip" data-search="event state notification">🔔 State Sync / Events</button>
+          <button type="button" class="nes-btn is-small pq-chip" data-search="instantiate creation">🏗️ Object Creation</button>
+          <button type="button" class="nes-btn is-small pq-chip" data-search="god object monolith">⚠️ Mega Class / Monolith</button>
+          <button type="button" class="nes-btn is-small pq-chip" data-search="spaghetti control flow">🍝 Tangled Code</button>
+        </div>
+      </div>
+
+      <!-- Type & Category Filter Controls -->
+      <div class="pq-filter-bar">
+        <div class="pq-type-buttons">
+          <button type="button" class="nes-btn is-small is-primary pq-type-btn active" data-type="all">All</button>
+          <button type="button" class="nes-btn is-small pq-type-btn" data-type="pattern">Design Patterns</button>
+          <button type="button" class="nes-btn is-small pq-type-btn" data-type="antipattern">Anti-Patterns</button>
+        </div>
+
+        <div class="nes-select pq-category-select">
+          <select id="category-filter">
+            <option value="all">All Realms (Categories)</option>
+            <option value="creational">Creational Realm</option>
+            <option value="structural">Structural Realm</option>
+            <option value="behavioral">Behavioral Realm</option>
+            <option value="arch-antipattern">Architectural Anti-Patterns</option>
+            <option value="design-antipattern">Design Anti-Patterns</option>
+            <option value="coding-antipattern">Coding Anti-Patterns</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div id="search-stats" class="pq-stats-bar"></div>
+    </div>
+
+    <!-- Quick Problem Decision Matrix Cheat Sheet -->
+    <div class="nes-container is-rounded pq-cheat-sheet-box">
+      <details>
+        <summary class="pixel-font" style="font-size: 11px; cursor: pointer; color: var(--pq-gold);">
+          📖 Quick Problem Finder Cheat Sheet (Click to expand)
+        </summary>
+        <div class="pq-cheat-grid" style="margin-top: 15px;">
+          <div class="pq-cheat-item">
+            <span class="pq-cheat-problem">"I need only ONE shared instance across my application."</span>
+            <a href="pattern.html?id=singleton" class="nes-badge"><span class="is-primary">Singleton</span></a>
+          </div>
+          <div class="pq-cheat-item">
+            <span class="pq-cheat-problem">"I need to connect two incompatible interfaces or legacy code."</span>
+            <a href="pattern.html?id=adapter" class="nes-badge"><span class="is-success">Adapter</span></a>
+          </div>
+          <div class="pq-cheat-item">
+            <span class="pq-cheat-problem">"I need multiple objects to react automatically when state changes."</span>
+            <a href="pattern.html?id=observer" class="nes-badge"><span class="is-warning">Observer</span></a>
+          </div>
+          <div class="pq-cheat-item">
+            <span class="pq-cheat-problem">"My class does way too much & holds all business logic."</span>
+            <a href="pattern.html?id=god-object" class="nes-badge"><span class="is-error">God Object</span></a>
+          </div>
+          <div class="pq-cheat-item">
+            <span class="pq-cheat-problem">"My code flow is deeply nested with tangled flags & loops."</span>
+            <a href="pattern.html?id=spaghetti-code" class="nes-badge"><span class="is-dark">Spaghetti Code</span></a>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Container for Rendered Realms / Patterns -->
+    <div id="realms"></div>
+  </div>
 
   <div class="pq-footer">Built with NES.css</div>
 

@@ -8,12 +8,12 @@ and it works.
 ## Structure
 
 ```
-index.html        Home page: patterns & anti-patterns grouped by realm (category)
+index.html        Problem Solver Homepage: live search, problem shortcuts, decision matrix & cards
 pattern.html       Detail page: reads ?id=xxx and renders pattern/anti-pattern sections
 add-pattern.html   Interactive form: builds Pattern & Anti-Pattern JS objects & JSON
-css/style.css      Theme on top of NES.css (scanline background, UML styling, tabs)
+css/style.css      Theme on top of NES.css (scanline background, UML styling, problem solver UI)
 js/data.js         <-- THE ONLY FILE YOU NEED TO EDIT to add entries
-js/home.js         Renders home page codex realms from data.js
+js/home.js         Powers problem search, quick problem chips, realm filtering & cards
 js/pattern.js       Renders detail pages from data.js
 js/add-pattern.js   Powers the form switcher, JS/JSON generator, clipboard copy & live preview
 ```
