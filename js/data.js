@@ -174,6 +174,147 @@ assert a is b`,
       "Connection pool managers, where creating a second pool would waste resources.",
     ],
     related: ["adapter"],
+  }, {
+    id: "singleton",
+    name: "Singleton",
+    category: "creational",
+    difficulty: 1,
+    summary: "Ensure a class has only one instance, and provide a global point of access to it.",
+    intent:
+      "Ensure a class only ever has one instance, and provide a single, well-known access point to that instance from anywhere in the program.",
+    motivation:
+      "Some objects only need to exist once: a print spooler, a configuration store, a connection pool. Passing that one object around through every constructor is clumsy, and using a global variable doesn't stop someone from creating a second instance by accident. Singleton solves both problems: the class itself is responsible for tracking its sole instance and can intercept requests to create new ones.",
+    applicability: [
+      "There must be exactly one instance of a class, and it must be reachable from a well-known access point.",
+      "The sole instance should be extensible by subclassing, and clients should be able to use the extended instance without changing their code.",
+      "Lazy initialization is desirable — the instance shouldn't be created until it's first needed.",
+    ],
+    structureSvg: `
+      <svg viewBox="0 0 420 190" xmlns="http://www.w3.org/2000/svg" class="uml-svg">
+        ${svgBox(140, 20, 160, 90, "Singleton", "-instance : Singleton")}
+        <text x="150" y="90" class="uml-method">+ getInstance()</text>
+        <text x="150" y="106" class="uml-method">+ singletonOperation()</text>
+        <line x1="220" y1="110" x2="220" y2="150" class="uml-arrow-self" marker-end="url(#arrow)"/>
+        <path d="M220,150 C160,170 160,60 190,45" class="uml-arrow-self" fill="none" marker-end="url(#arrow)"/>
+        <text x="60" y="165" class="uml-note">calls getInstance() on itself to create/return the one instance</text>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" class="uml-arrowhead"/>
+          </marker>
+        </defs>
+      </svg>`,
+    participants: [
+      { name: "Singleton", desc: "Defines the getInstance() operation that lets clients access its unique instance. Responsible for creating and holding its own sole instance." },
+    ],
+    collaboration:
+      "Clients access the Singleton instance exclusively through the class's getInstance() operation. They never call a public constructor directly.",
+    consequences: [
+      "Controlled access to the sole instance, since the class encapsulates it.",
+      "Reduced namespace pollution compared to global variables.",
+      "Permits refinement — the Singleton class can be subclassed, and the app can be configured with an instance of the extended class at runtime.",
+      "Permits a variable number of instances if requirements change later, since the access mechanism is already encapsulated.",
+      "Can make unit testing harder, since the single shared instance carries state across tests unless explicitly reset.",
+    ],
+    implementations: [
+      {
+        language: "JavaScript",
+        classes: [
+          {
+            name: "Singleton",
+            code:
+`class Singleton {
+  static #instance;
+
+  constructor() {
+    if (Singleton.#instance) {
+      throw new Error("Use Singleton.getInstance()");
+    }
+    this.createdAt = Date.now();
+  }
+
+  static getInstance() {
+    if (!Singleton.#instance) {
+      Singleton.#instance = new Singleton();
+    }
+    return Singleton.#instance;
+  }
+
+  singletonOperation() {
+    return \`instance created at \${this.createdAt}\`;
+  }
+}
+
+// usage
+const a = Singleton.getInstance();
+const b = Singleton.getInstance();
+console.log(a === b); // true`,
+          },
+        ],
+      },
+      {
+        language: "Java",
+        classes: [
+          {
+            name: "Singleton",
+            code:
+`public final class Singleton {
+    private static volatile Singleton instance;
+    private final long createdAt;
+
+    private Singleton() {
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public long singletonOperation() {
+        return createdAt;
+    }
+}`,
+          },
+        ],
+      },
+      {
+        language: "Python",
+        classes: [
+          {
+            name: "Singleton",
+            code:
+`class Singleton:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.created_at = None
+        return cls._instance
+
+    def singleton_operation(self):
+        return f"instance id: {id(self)}"
+
+
+a = Singleton()
+b = Singleton()
+assert a is b`,
+          },
+        ],
+      },
+    ],
+    knownUses: [
+      "Runtime environments that expose a single logging service instance.",
+      "Application-wide configuration objects loaded once from disk or environment variables.",
+      "Connection pool managers, where creating a second pool would waste resources.",
+    ],
+    related: ["adapter"],
   },
 
   // ============================================================

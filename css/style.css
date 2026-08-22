@@ -206,3 +206,120 @@ body {
 @media (max-width: 480px) {
   .pq-banner h1 { font-size: 16px; }
 }
+
+/* ---------- Pattern Generator Form ---------- */
+.pq-crumb-nav {
+  max-width: 1000px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pq-form-section {
+  background: var(--pq-panel);
+  color: var(--pq-ink);
+  margin-bottom: 24px;
+}
+
+.pq-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.pq-field-hint {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.pq-dynamic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pq-dynamic-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pq-dynamic-row input {
+  flex: 1;
+}
+
+.pq-participant-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pq-participant-row .part-name {
+  flex: 1;
+  min-width: 140px;
+}
+
+.pq-participant-row .part-desc {
+  flex: 2;
+  min-width: 200px;
+}
+
+.pq-impl-block {
+  background: #fffdf6;
+  margin-bottom: 15px;
+  border: 2px dashed var(--pq-ink);
+}
+
+.pq-impl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.pq-class-row {
+  background: #fff;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.pq-actions-bar {
+  display: flex;
+  gap: 15px;
+  margin: 25px 0 35px;
+  flex-wrap: wrap;
+}
+
+.pq-output-section {
+  background: var(--pq-panel);
+  color: var(--pq-ink);
+  margin-bottom: 30px;
+}
+
+.pq-output-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.pq-copy-status {
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.pq-code-box pre {
+  margin: 0;
+  max-height: 450px;
+  overflow-y: auto;
+}

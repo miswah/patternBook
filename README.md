@@ -10,18 +10,20 @@ and it works.
 ```
 index.html        Home page: patterns grouped by realm (category)
 pattern.html       Detail page: reads ?id=xxx and renders every section
+add-pattern.html   Interactive form: builds pattern JS objects & JSON for easy copying
 css/style.css      Theme on top of NES.css (scanline background, UML
                     diagram styling, language/class tab styling)
 js/data.js         <-- THE ONLY FILE YOU NEED TO EDIT to add patterns
 js/home.js         Renders the home page from data.js
 js/pattern.js       Renders the detail page from data.js
+js/add-pattern.js   Powers the pattern form, JS generator, clipboard copy & preview
 ```
 
 ## Adding a new pattern
 
-Open `js/data.js` and add an object to the `PATTERNS` array. Copy the
-`adapter` or `observer` entry as a starting template — every field maps
-1:1 onto a section of the detail page:
+You can use the built-in **Pattern Generator form** at `add-pattern.html` (or click **+ Add New Pattern** on the home page) to fill out fields interactively, preview the pattern live, and click **Copy JS Object** to copy the ready-to-paste code directly into `PATTERNS` in `js/data.js`.
+
+Alternatively, open `js/data.js` manually and add an object to the `PATTERNS` array. Copy an existing entry as a template — every field maps 1:1 onto a section of the detail page:
 
 | Field             | Section on the page          | Type                          |
 |-------------------|-------------------------------|--------------------------------|

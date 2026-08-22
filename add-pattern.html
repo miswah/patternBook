@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pattern Book — Add New Pattern</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nes.css@latest/css/nes.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="pq-crumb-nav">
+    <a href="index.html" class="nes-btn is-small">&larr; Back to Codex</a>
+    <a href="#output-section" class="nes-btn is-primary is-small">Jump to Output Code</a>
+  </div>
+
+  <div class="pq-banner">
+    <h1 class="pixel-font">Pattern Generator</h1>
+    <p>Fill out the form below to generate a formatted JS object ready to paste into <code>js/data.js</code>.</p>
+  </div>
+
+  <div class="pq-wrap">
+
+    <form id="pattern-form" class="pq-form-wrap" onsubmit="event.preventDefault();">
+
+      <!-- 1. Basic Info -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">1. Basic Details</p>
+
+        <div class="pq-form-grid">
+          <div class="nes-field">
+            <label for="p-id">Pattern ID (Slug):</label>
+            <input type="text" id="p-id" class="nes-input" placeholder="e.g. factory-method" required />
+            <span class="pq-field-hint">Unique lowercase hyphenated identifier</span>
+          </div>
+
+          <div class="nes-field">
+            <label for="p-name">Pattern Name:</label>
+            <input type="text" id="p-name" class="nes-input" placeholder="e.g. Factory Method" required />
+          </div>
+
+          <div class="nes-field">
+            <label for="p-category">Category (Realm):</label>
+            <div class="nes-select">
+              <select id="p-category" required>
+                <option value="creational">Creational Realm</option>
+                <option value="structural">Structural Realm</option>
+                <option value="behavioral">Behavioral Realm</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="nes-field">
+            <label for="p-difficulty">Difficulty (1 - 3 Stars):</label>
+            <div class="nes-select">
+              <select id="p-difficulty">
+                <option value="1">1 Star (★☆☆)</option>
+                <option value="2">2 Stars (★★☆)</option>
+                <option value="3">3 Stars (★★★)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="nes-field" style="margin-top: 15px;">
+          <label for="p-summary">Summary (Short card blurb):</label>
+          <input type="text" id="p-summary" class="nes-input" placeholder="e.g. Define an interface for creating an object..." />
+        </div>
+      </section>
+
+      <!-- 2. Intent & Motivation -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">2. Intent & Motivation</p>
+
+        <div class="nes-field">
+          <label for="p-intent">Intent:</label>
+          <textarea id="p-intent" class="nes-textarea" rows="3" placeholder="What does this pattern do?"></textarea>
+        </div>
+
+        <div class="nes-field" style="margin-top: 15px;">
+          <label for="p-motivation">Motivation:</label>
+          <textarea id="p-motivation" class="nes-textarea" rows="4" placeholder="Why is this pattern needed? What problem does it solve?"></textarea>
+        </div>
+      </section>
+
+      <!-- 3. Applicability -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">3. Applicability</p>
+        <p class="pq-field-hint">When should you use this pattern?</p>
+
+        <div id="applicability-list" class="pq-dynamic-list"></div>
+        <button type="button" class="nes-btn is-success is-small" id="add-applicability-btn">+ Add Bullet Point</button>
+      </section>
+
+      <!-- 4. Structure Diagram -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">4. Structure Diagram (SVG)</p>
+
+        <div class="nes-field">
+          <label for="p-structureSvg">Raw SVG Markup or HTML:</label>
+          <textarea id="p-structureSvg" class="nes-textarea" rows="5" placeholder='<svg viewBox="0 0 420 190">...</svg>'></textarea>
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="button" class="nes-btn is-normal is-small" id="insert-svg-template-btn">Insert SVG Helper Template</button>
+        </div>
+      </section>
+
+      <!-- 5. Participants -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">5. Participants</p>
+        <p class="pq-field-hint">Classes/objects participating in the pattern and their responsibilities.</p>
+
+        <div id="participants-list" class="pq-dynamic-list"></div>
+        <button type="button" class="nes-btn is-success is-small" id="add-participant-btn">+ Add Participant</button>
+      </section>
+
+      <!-- 6. Collaboration & Consequences -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">6. Collaboration & Consequences</p>
+
+        <div class="nes-field">
+          <label for="p-collaboration">Collaboration:</label>
+          <textarea id="p-collaboration" class="nes-textarea" rows="3" placeholder="How participants interact to perform their responsibilities."></textarea>
+        </div>
+
+        <div class="nes-field" style="margin-top: 15px;">
+          <label>Consequences:</label>
+          <p class="pq-field-hint">Pros, cons, and trade-offs of using this pattern.</p>
+          <div id="consequences-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-success is-small" id="add-consequence-btn">+ Add Consequence</button>
+        </div>
+      </section>
+
+      <!-- 7. Implementations -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">7. Implementation Code</p>
+        <p class="pq-field-hint">Code examples grouped by programming language and class/module.</p>
+
+        <div id="implementations-list" class="pq-dynamic-list"></div>
+        <button type="button" class="nes-btn is-success is-small" id="add-implementation-btn">+ Add Language Implementation</button>
+      </section>
+
+      <!-- 8. Known Uses & Related Patterns -->
+      <section class="nes-container with-title is-rounded pq-form-section">
+        <p class="title">8. Known Uses & Related Patterns</p>
+
+        <div class="nes-field">
+          <label>Known Uses:</label>
+          <div id="known-uses-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-success is-small" id="add-known-use-btn">+ Add Known Use</button>
+        </div>
+
+        <div class="nes-field" style="margin-top: 15px;">
+          <label>Related Pattern IDs:</label>
+          <p class="pq-field-hint">IDs of existing patterns (e.g. singleton, observer, adapter)</p>
+          <div id="related-list" class="pq-dynamic-list"></div>
+          <button type="button" class="nes-btn is-success is-small" id="add-related-btn">+ Add Related Pattern</button>
+        </div>
+      </section>
+
+      <!-- Action Controls -->
+      <div class="pq-actions-bar">
+        <button type="button" id="generate-btn" class="nes-btn is-primary">Generate Pattern Code</button>
+        <button type="button" id="load-example-btn" class="nes-btn is-warning">Load Example Data</button>
+        <button type="button" id="reset-btn" class="nes-btn is-error">Clear Form</button>
+      </div>
+
+    </form>
+
+    <!-- Output & Preview Section -->
+    <section id="output-section" class="nes-container with-title is-rounded pq-output-section">
+      <p class="title">Generated Output & Live Preview</p>
+
+      <div class="pq-output-actions">
+        <button type="button" id="copy-js-btn" class="nes-btn is-success">Copy JS Object (for data.js)</button>
+        <button type="button" id="copy-json-btn" class="nes-btn is-primary">Copy JSON</button>
+        <button type="button" id="toggle-preview-btn" class="nes-btn">Toggle Live Preview</button>
+        <span id="copy-status" class="pq-copy-status"></span>
+      </div>
+
+      <div class="nes-container is-dark pq-code-box">
+        <pre><code id="output-code" class="language-javascript">// Complete the form above and click "Generate Pattern Code"...</code></pre>
+      </div>
+
+      <!-- Live Preview Container -->
+      <div id="preview-container" style="display: none; margin-top: 25px;">
+        <h3 class="pixel-font" style="font-size: 14px; margin-bottom: 15px; color: var(--pq-gold);">Live Preview</h3>
+        <div id="pattern-root"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="pq-footer">Built with NES.css</div>
+
+  <script src="js/data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="js/pattern.js"></script>
+  <script src="js/add-pattern.js"></script>
+</body>
+</html>

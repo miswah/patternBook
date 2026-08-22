@@ -132,54 +132,63 @@ function wireImplementationTabs(container) {
 
 /* ---------- Main render ---------- */
 
-function renderPattern() {
-  const root = document.getElementById("pattern-root");
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  const pattern = getPattern(id);
+function renderPatternDetail(pattern, root = document.getElementById("pattern-root")) {
+  if (!root) return;
 
   if (!pattern) {
     root.innerHTML = `
       <section class="pq-section nes-container is-rounded">
         <h2>Pattern not found</h2>
-        <p>No pattern with id "<code>${id || ""}</code>" is catalogued.</p>
+        <p>No pattern with specified id is catalogued.</p>
         <a class="nes-btn is-primary" href="index.html">Back to the Codex</a>
       </section>`;
     return;
   }
 
-  const cat = getCategory(pattern.category);
-  document.title = `${pattern.name} — Pattern Book`;
+  const cat = getCategory(pattern.category) || { label: pattern.category || "General", badge: "is-primary" };
+  if (document.getElementById("pattern-root") === root) {
+    document.title = `${pattern.name || "Pattern"} — Pattern Book`;
+  }
 
   root.innerHTML = `
     <header class="pq-detail-head nes-container is-rounded">
       <span class="nes-badge"><span class="${cat.badge}">${cat.label}</span></span>
-      <h1 class="pixel-font" style="margin-top:12px;">${pattern.name}</h1>
-      <div class="pq-summary">${pattern.summary}</div>
-      <div class="pq-stars" style="margin-top:8px;">${starRatingSmall(pattern.difficulty)} difficulty</div>
+      <h1 class="pixel-font" style="margin-top:12px;">${pattern.name || "Untitled Pattern"}</h1>
+      <div class="pq-summary">${pattern.summary || ""}</div>
+      <div class="pq-stars" style="margin-top:8px;">${starRatingSmall(pattern.difficulty || 1)} difficulty</div>
     </header>
 
-    ${section("Intent", "nes-icon trophy is-small", `<p>${pattern.intent}</p>`)}
-    ${section("Motivation", "", `<p>${pattern.motivation}</p>`)}
-    ${section("Applicability", "", renderList(pattern.applicability))}
-    ${section(
-      "Structure",
-      "",
-      `<div class="pq-structure-wrap">${pattern.structureSvg}</div>`
-    )}
-    ${section("Participants", "", renderParticipants(pattern.participants))}
-    ${section("Collaboration", "", `<p>${pattern.collaboration}</p>`)}
-    ${section("Consequences", "", renderList(pattern.consequences))}
-    ${section("Implementation", "", `<div id="impl-root"></div>`)}
-    ${section("Known Uses", "", renderList(pattern.knownUses))}
-    ${section("Related Patterns", "", renderRelated(pattern.related))}
+    ${pattern.intent ? section("Intent", "nes-icon trophy is-small", `<p>${pattern.intent}</p>`) : ""}
+    ${pattern.motivation ? section("Motivation", "", `<p>${pattern.motivation}</p>`) : ""}
+    ${pattern.applicability && pattern.applicability.length ? section("Applicability", "", renderList(pattern.applicability)) : ""}
+    ${pattern.structureSvg ? section("Structure", "", `<div class="pq-structure-wrap">${pattern.structureSvg}</div>`) : ""}
+    ${pattern.participants && pattern.participants.length ? section("Participants", "", renderParticipants(pattern.participants)) : ""}
+    ${pattern.collaboration ? section("Collaboration", "", `<p>${pattern.collaboration}</p>`) : ""}
+    ${pattern.consequences && pattern.consequences.length ? section("Consequences", "", renderList(pattern.consequences)) : ""}
+    ${pattern.implementations && pattern.implementations.length ? section("Implementation", "", `<div id="impl-root"></div>`) : ""}
+    ${pattern.knownUses && pattern.knownUses.length ? section("Known Uses", "", renderList(pattern.knownUses)) : ""}
+    ${pattern.related && pattern.related.length ? section("Related Patterns", "", renderRelated(pattern.related)) : ""}
   `;
 
-  const implRoot = document.getElementById("impl-root");
-  implRoot.innerHTML = renderImplementation(pattern.implementations);
-  wireImplementationTabs(implRoot);
+  if (pattern.implementations && pattern.implementations.length) {
+    const implRoot = root.querySelector("#impl-root") || document.getElementById("impl-root");
+    if (implRoot) {
+      implRoot.innerHTML = renderImplementation(pattern.implementations);
+      wireImplementationTabs(implRoot);
+    }
+  }
 
   if (window.Prism) Prism.highlightAll();
 }
 
-renderPattern();
+function renderPattern() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  if (!id) return;
+  const pattern = getPattern(id);
+  renderPatternDetail(pattern);
+}
+
+if (document.location.pathname.endsWith("pattern.html")) {
+  renderPattern();
+}
