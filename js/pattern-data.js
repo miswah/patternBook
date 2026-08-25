@@ -435,6 +435,78 @@ console.log(shape.draw());`,
     "composite",
     "strategy"
   ]
+  },
+  // =============================================================
+  // Facade - Structural
+  // =============================================================
+  {
+  "id": "facade",
+  "name": "Facade",
+  "category": "structural",
+  "difficulty": 1,
+  "summary": "Provide a unified, simplified interface to a complex subsystem of classes.",
+  "intent": "Provides a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use.",
+  "motivation": "Imagine you have built a killer Home Theater system. You have a DVD Player, a Projector, an Automated Screen, a Surround Sound Amplifier, and Smart Lights. To watch a movie, you have to execute a tedious sequence: dim the lights, lower the screen, turn on the projector, set the projector input to the DVD, turn on the amplifier, set the amplifier input to the DVD, set the amp volume, turn on the DVD player, and press play. \n\nIf you put all this logic directly into your client application, it becomes incredibly complex and tightly coupled to a dozen different device classes. The Facade pattern solves this by introducing a `HomeTheaterFacade` class. This facade exposes a simple, high-level method like `watchMovie(\"Raiders of the Lost Ark\")`. Under the hood, the facade understands exactly how to orchestrate the complex subsystem of devices, giving the client a simple, single point of entry.",
+  "applicability": [
+    "When you want to provide a simple interface to a complex subsystem. Subsystems often get more complex as they evolve, and a facade provides a default, simplified view for most clients.",
+    "When there are many dependencies between clients and the implementation classes of an abstraction. A facade decouples the subsystem from clients and other subsystems, promoting subsystem independence and portability.",
+    "When you want to layer your subsystems. Use a facade to define an entry point to each subsystem level, simplifying the communication between them."
+  ],
+  "structureSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 450\" width=\"100%\" height=\"100%\">\n  <style>\n    .box { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; rx: 5; }\n    .subsystem-box { fill: #e9ecef; stroke: #6c757d; stroke-width: 2; stroke-dasharray: 5,5; rx: 10; }\n    .text-title { font-family: sans-serif; font-size: 16px; font-weight: bold; fill: #212529; text-anchor: middle; }\n    .text-body { font-family: sans-serif; font-size: 12px; fill: #495057; }\n    .line { stroke: #343a40; stroke-width: 2; fill: none; }\n    .arrow { fill: #343a40; }\n    .dashed { stroke-dasharray: 5,5; stroke: #6c757d; }\n  </style>\n\n  <!-- Client -->\n  <rect x=\"50\" y=\"180\" width=\"150\" height=\"60\" class=\"box\" />\n  <text x=\"125\" y=\"215\" class=\"text-title\">Client</text>\n\n  <!-- Facade -->\n  <rect x=\"300\" y=\"160\" width=\"180\" height=\"100\" class=\"box\" />\n  <text x=\"390\" y=\"190\" class=\"text-title\">Facade</text>\n  <line x1=\"300\" y1=\"200\" x2=\"480\" y2=\"200\" class=\"line\" />\n  <text x=\"310\" y=\"225\" class=\"text-body\">+ watchMovie()</text>\n  <text x=\"310\" y=\"245\" class=\"text-body\">+ endMovie()</text>\n\n  <!-- Subsystem Boundary -->\n  <rect x=\"550\" y=\"30\" width=\"220\" height=\"360\" class=\"subsystem-box\" />\n  <text x=\"660\" y=\"60\" class=\"text-title\" fill=\"#6c757d\">Complex Subsystem</text>\n\n  <!-- Subsystem Classes -->\n  <rect x=\"580\" y=\"90\" width=\"160\" height=\"50\" class=\"box\" />\n  <text x=\"660\" y=\"120\" class=\"text-title\">Amplifier</text>\n\n  <rect x=\"580\" y=\"180\" width=\"160\" height=\"50\" class=\"box\" />\n  <text x=\"660\" y=\"210\" class=\"text-title\">DvdPlayer</text>\n\n  <rect x=\"580\" y=\"270\" width=\"160\" height=\"50\" class=\"box\" />\n  <text x=\"660\" y=\"300\" class=\"text-title\">Projector</text>\n\n  <!-- Client to Facade -->\n  <path d=\"M 200 210 L 290 210\" class=\"line\" />\n  <polygon points=\"290,210 280,205 280,215\" class=\"arrow\" />\n\n  <!-- Facade to Subsystems -->\n  <path d=\"M 480 180 L 570 120\" class=\"line\" />\n  <polygon points=\"570,120 560,118 565,128\" class=\"arrow\" />\n\n  <path d=\"M 480 210 L 570 210\" class=\"line\" />\n  <polygon points=\"570,210 560,205 560,215\" class=\"arrow\" />\n\n  <path d=\"M 480 240 L 570 290\" class=\"line\" />\n  <polygon points=\"570,290 565,280 560,290\" class=\"arrow\" />\n\n  <!-- Inter-subsystem coupling (shows complexity) -->\n  <path d=\"M 660 140 L 660 170\" class=\"line dashed\" />\n  <polygon points=\"660,170 655,160 665,160\" class=\"arrow\" fill=\"#6c757d\" />\n\n  <path d=\"M 620 230 L 620 260\" class=\"line dashed\" />\n  <polygon points=\"620,260 615,250 625,250\" class=\"arrow\" fill=\"#6c757d\" />\n</svg>",
+  "participants": [
+    {
+      "name": "Facade (HomeTheaterFacade)",
+      "desc": "Knows which subsystem classes are responsible for a request. Delegates client requests to appropriate subsystem objects."
+    },
+    {
+      "name": "Subsystem classes (Amplifier, DvdPlayer, etc.)",
+      "desc": "Implement the core subsystem functionality. They handle the work assigned by the Facade object but have no knowledge of the facade (they don't keep references to it)."
+    }
+  ],
+  "collaboration": "1. Clients communicate with the complex subsystem by sending requests directly to the Facade.\n2. The Facade receives the simple request and forwards/translates it into a series of complex requests to the appropriate subsystem objects.\n3. The subsystem objects perform the actual work. The client only ever talks to the Facade, shielding it from the complexity.",
+  "consequences": [
+    "Shielding: It shields clients from subsystem components, reducing the number of objects that clients deal with and making the subsystem easier to use.",
+    "Loose Coupling: Promotes weak coupling between the subsystem and its clients. If the internals of the Home Theater system change (e.g., upgrading from a DVD to a Streaming Box), you only have to update the Facade, not the client code.",
+    "Principle of Least Knowledge (Law of Demeter): Helps strictly enforce this OO principle by giving the client only one 'friend' (the Facade) to talk to, rather than letting the client reach in and talk to all the subsystem parts directly.",
+    "Not a Prison: It does NOT prevent expert clients from bypassing the Facade and using the subsystem classes directly if they need advanced functionality. It's a convenience, not an absolute encapsulation."
+  ],
+  "implementations": [
+    {
+      "language": "Java",
+      "classes": [
+        {
+          "name": "Amplifier",
+          "code": "public class Amplifier {\n    public void on() { System.out.println(\"Amp on\"); }\n    public void setDvd(DvdPlayer dvd) { System.out.println(\"Amp setting DVD player\"); }\n    public void setSurroundSound() { System.out.println(\"Amp surround sound on (5 speakers, 1 subwoofer)\"); }\n    public void setVolume(int level) { System.out.println(\"Amp setting volume to \" + level); }\n    public void off() { System.out.println(\"Amp off\"); }\n}"
+        },
+        {
+          "name": "DvdPlayer",
+          "code": "public class DvdPlayer {\n    public void on() { System.out.println(\"DVD on\"); }\n    public void play(String movie) { System.out.println(\"DVD playing \\\"\" + movie + \"\\\"\"); }\n    public void stop() { System.out.println(\"DVD stopped\"); }\n    public void eject() { System.out.println(\"DVD eject\"); }\n    public void off() { System.out.println(\"DVD off\"); }\n}"
+        },
+        {
+          "name": "Projector",
+          "code": "public class Projector {\n    public void on() { System.out.println(\"Projector on\"); }\n    public void wideScreenMode() { System.out.println(\"Projector in widescreen mode (16x9 aspect ratio)\"); }\n    public void off() { System.out.println(\"Projector off\"); }\n}"
+        },
+        {
+          "name": "HomeTheaterFacade",
+          "code": "public class HomeTheaterFacade {\n    private Amplifier amp;\n    private DvdPlayer dvd;\n    private Projector projector;\n\n    // The Facade is passed all the subsystem components in its constructor\n    public HomeTheaterFacade(Amplifier amp, DvdPlayer dvd, Projector projector) {\n        this.amp = amp;\n        this.dvd = dvd;\n        this.projector = projector;\n    }\n\n    // A simplified macro-method that orchestrates the subsystem\n    public void watchMovie(String movie) {\n        System.out.println(\"Get ready to watch a movie...\");\n        projector.on();\n        projector.wideScreenMode();\n        amp.on();\n        amp.setDvd(dvd);\n        amp.setSurroundSound();\n        amp.setVolume(5);\n        dvd.on();\n        dvd.play(movie);\n    }\n\n    public void endMovie() {\n        System.out.println(\"\\nShutting movie theater down...\");\n        projector.off();\n        amp.off();\n        dvd.stop();\n        dvd.eject();\n        dvd.off();\n    }\n}"
+        },
+        {
+          "name": "Client",
+          "code": "public class Client {\n    public static void main(String[] args) {\n        // Subsystem components are usually instantiated or injected here\n        Amplifier amp = new Amplifier();\n        DvdPlayer dvd = new DvdPlayer();\n        Projector projector = new Projector();\n\n        // The Client creates the Facade\n        HomeTheaterFacade homeTheater = \n            new HomeTheaterFacade(amp, dvd, projector);\n\n        // The Client relies strictly on the simple Facade API\n        homeTheater.watchMovie(\"Raiders of the Lost Ark\");\n        homeTheater.endMovie();\n    }\n}"
+        }
+      ]
+    }
+  ],
+  "knownUses": [
+    "API Wrappers: Any time you use a library that wraps a messy, complex legacy API or a low-level C++ library in a clean, modern language wrapper, you are using a Facade.",
+    "SLF4J (Simple Logging Facade for Java): Acts as a unified, simple facade for various complex logging frameworks like Logback, log4j, and java.util.logging.",
+    "Spring Framework: Spring heavily uses facades to hide the complex instantiation and configuration of beans and transactions from the standard developer workflows."
+  ],
+  "related": [
+    "adapter",
+    "mediator",
+    "singleton"
+  ]
 },
 
   // ============================================================
@@ -514,6 +586,91 @@ console.log(shape.draw());`,
     "pub-sub",
     "mediator",
     "singleton"
+  ]
+  },
+  // ============================================================
+  // Command - Behavioral
+  // ============================================================
+  {
+  "id": "command",
+  "name": "Command",
+  "category": "behavioral",
+  "difficulty": 3,
+  "summary": "Encapsulate a request as an object, allowing you to parameterize clients, queue requests, and support undo operations.",
+  "intent": "Encapsulates a request as an object, thereby letting you parameterize other objects with different requests, queue or log requests, and support undoable operations.",
+  "motivation": "Imagine you are designing a programmable home automation remote control. The remote has generic slots and buttons (on/off), but the smart devices you need to control (Lights, Ceiling Fans, Garage Doors) all have entirely different interfaces and methods (e.g., `light.turnOn()`, `garageDoor.open()`). If you hardcode the device actions directly into the remote's button logic, the remote becomes tightly coupled to specific vendor classes.\n\nThe Command pattern solves this by wrapping the request into a standalone object. You create a `Command` interface with a single `execute()` method. A `LightOnCommand` implements this interface and binds the specific `Light` receiver to its `turnOn()` action. The remote (Invoker) only needs to know how to call `execute()` on the command it holds, completely decoupling the remote from the physical devices.",
+  "applicability": [
+    "You want to parameterize objects with an action to perform (like menu items or buttons in a UI).",
+    "You need to specify, queue, and execute requests at different times (e.g., thread pools or task queues).",
+    "You need to support undo (un-execute) operations by storing state inside the command before it executes.",
+    "You need to support logging changes so that they can be reapplied sequentially in case of a system crash."
+  ],
+  "structureSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 350\" width=\"100%\" height=\"100%\">\n  <style>\n    .box { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; rx: 5; }\n    .text-title { font-family: sans-serif; font-size: 16px; font-weight: bold; fill: #212529; text-anchor: middle; }\n    .text-body { font-family: sans-serif; font-size: 12px; fill: #495057; }\n    .line { stroke: #343a40; stroke-width: 2; fill: none; }\n    .arrow { fill: #343a40; }\n    .dashed { stroke-dasharray: 5,5; }\n    .diamond { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; }\n  </style>\n\n  <!-- Invoker -->\n  <rect x=\"50\" y=\"30\" width=\"220\" height=\"80\" class=\"box\" />\n  <text x=\"160\" y=\"55\" class=\"text-title\">Invoker</text>\n  <line x1=\"50\" y1=\"65\" x2=\"270\" y2=\"65\" class=\"line\" />\n  <text x=\"60\" y=\"85\" class=\"text-body\">+ setCommand(c: Command)</text>\n  <text x=\"60\" y=\"100\" class=\"text-body\">+ executeCommand()</text>\n\n  <!-- Command -->\n  <rect x=\"480\" y=\"30\" width=\"220\" height=\"80\" class=\"box\" />\n  <text x=\"590\" y=\"55\" class=\"text-title\">&lt;&lt;interface&gt;&gt;</text>\n  <text x=\"590\" y=\"75\" class=\"text-title\">Command</text>\n  <line x1=\"480\" y1=\"85\" x2=\"700\" y2=\"85\" class=\"line\" />\n  <text x=\"490\" y=\"105\" class=\"text-body\">+ execute()</text>\n\n  <!-- Receiver -->\n  <rect x=\"50\" y=\"200\" width=\"220\" height=\"80\" class=\"box\" />\n  <text x=\"160\" y=\"225\" class=\"text-title\">Receiver</text>\n  <line x1=\"50\" y1=\"235\" x2=\"270\" y2=\"235\" class=\"line\" />\n  <text x=\"60\" y=\"255\" class=\"text-body\">+ action()</text>\n\n  <!-- Concrete Command -->\n  <rect x=\"480\" y=\"200\" width=\"220\" height=\"90\" class=\"box\" />\n  <text x=\"590\" y=\"225\" class=\"text-title\">ConcreteCommand</text>\n  <line x1=\"480\" y1=\"235\" x2=\"700\" y2=\"235\" class=\"line\" />\n  <text x=\"490\" y=\"255\" class=\"text-body\">- receiver: Receiver</text>\n  <text x=\"490\" y=\"275\" class=\"text-body\">+ execute()</text>\n\n  <!-- Invoker -> Command (Aggregation) -->\n  <path d=\"M 290 70 L 470 70\" class=\"line\" />\n  <polygon points=\"470,70 460,65 460,75\" class=\"arrow\" />\n  <polygon points=\"270,70 280,65 290,70 280,75\" class=\"diamond\" />\n\n  <!-- ConcreteCommand implements Command -->\n  <path d=\"M 590 200 L 590 110\" class=\"line dashed\" />\n  <polygon points=\"590,110 585,125 595,125\" class=\"arrow\" />\n\n  <!-- ConcreteCommand -> Receiver -->\n  <path d=\"M 480 250 L 280 250\" class=\"line\" />\n  <polygon points=\"280,250 290,245 290,255\" class=\"arrow\" />\n</svg>",
+  "participants": [
+    {
+      "name": "Command",
+      "desc": "Declares an interface for executing a specific operation."
+    },
+    {
+      "name": "ConcreteCommand (LightOnCommand)",
+      "desc": "Defines a binding between a Receiver object and an action. It implements the execute() method by invoking the corresponding operations on the Receiver."
+    },
+    {
+      "name": "Client (RemoteLoader)",
+      "desc": "Creates a ConcreteCommand object and sets its corresponding receiver."
+    },
+    {
+      "name": "Invoker (RemoteControl)",
+      "desc": "Holds a command and asks it to carry out the request by calling its execute() method."
+    },
+    {
+      "name": "Receiver (Light)",
+      "desc": "Knows how to perform the actual business logic or operations associated with carrying out a request."
+    }
+  ],
+  "collaboration": "1. The Client creates a ConcreteCommand object and specifies its Receiver.\n2. An Invoker object stores the ConcreteCommand object (often passed in via a setter or constructor).\n3. The Invoker issues a request at a later point in time by calling `execute()` on the command.\n4. The ConcreteCommand intercepts this call and invokes the actual operational methods on its Receiver to carry out the request.",
+  "consequences": [
+    "Decoupling: It completely decouples the object that invokes the operation from the one that knows how to perform it.",
+    "First-Class Objects: Commands are first-class objects. They can be manipulated, queued, logged, or passed around like any other object.",
+    "Macro Commands: You can assemble multiple commands into a single composite command (e.g., a 'Party Mode' button that turns on lights, starts music, and dims blinds).",
+    "Class Explosion: A potential downside is the proliferation of tiny Command classes for every single possible action in the system."
+  ],
+  "implementations": [
+    {
+      "language": "Java",
+      "classes": [
+        {
+          "name": "Command",
+          "code": "public interface Command {\n    public void execute();\n}"
+        },
+        {
+          "name": "Light",
+          "code": "// The Receiver\npublic class Light {\n    public void on() {\n        System.out.println(\"Light is On\");\n    }\n\n    public void off() {\n        System.out.println(\"Light is Off\");\n    }\n}"
+        },
+        {
+          "name": "LightOnCommand",
+          "code": "// The ConcreteCommand\npublic class LightOnCommand implements Command {\n    Light light;\n\n    public LightOnCommand(Light light) {\n        this.light = light;\n    }\n\n    public void execute() {\n        light.on();\n    }\n}"
+        },
+        {
+          "name": "SimpleRemoteControl",
+          "code": "// The Invoker\npublic class SimpleRemoteControl {\n    Command slot;\n\n    public SimpleRemoteControl() {}\n\n    public void setCommand(Command command) {\n        slot = command;\n    }\n\n    public void buttonWasPressed() {\n        slot.execute();\n    }\n}"
+        },
+        {
+          "name": "RemoteControlTest",
+          "code": "// The Client\npublic class RemoteControlTest {\n    public static void main(String[] args) {\n        SimpleRemoteControl remote = new SimpleRemoteControl();\n        Light light = new Light();\n        LightOnCommand lightOn = new LightOnCommand(light);\n\n        // Parameterize the invoker with the command\n        remote.setCommand(lightOn);\n        \n        // The invoker executes the command\n        remote.buttonWasPressed();\n    }\n}"
+        }
+      ]
+    }
+  ],
+  "knownUses": [
+    "Java's Runnable Interface: Runnable acts exactly like a Command. Thread pools or Schedulers (Invokers) execute these Runnable (Command) objects without needing to know what the task actually is.",
+    "GUI Actions: Swing ActionListeners or standard UI button click handlers encapsulate an action to be performed when a button is clicked.",
+    "Undo/Redo Mechanisms: By extending the Command interface to include an `undo()` method, commands can be stored on a history stack. Popping them off and calling `undo()` restores previous states."
+  ],
+  "related": [
+    "memento",
+    "composite",
+    "prototype"
   ]
 }
 ];
