@@ -183,148 +183,8 @@ assert a is b`,
       "Connection pool managers, where creating a second pool would waste resources.",
     ],
     related: ["adapter"],
-  }, {
-    id: "singleton",
-    name: "Singleton",
-    category: "creational",
-    difficulty: 1,
-    summary: "Ensure a class has only one instance, and provide a global point of access to it.",
-    intent:
-      "Ensure a class only ever has one instance, and provide a single, well-known access point to that instance from anywhere in the program.",
-    motivation:
-      "Some objects only need to exist once: a print spooler, a configuration store, a connection pool. Passing that one object around through every constructor is clumsy, and using a global variable doesn't stop someone from creating a second instance by accident. Singleton solves both problems: the class itself is responsible for tracking its sole instance and can intercept requests to create new ones.",
-    applicability: [
-      "There must be exactly one instance of a class, and it must be reachable from a well-known access point.",
-      "The sole instance should be extensible by subclassing, and clients should be able to use the extended instance without changing their code.",
-      "Lazy initialization is desirable — the instance shouldn't be created until it's first needed.",
-    ],
-    structureSvg: `
-      <svg viewBox="0 0 420 190" xmlns="http://www.w3.org/2000/svg" class="uml-svg">
-        ${svgBox(140, 20, 160, 90, "Singleton", "-instance : Singleton")}
-        <text x="150" y="90" class="uml-method">+ getInstance()</text>
-        <text x="150" y="106" class="uml-method">+ singletonOperation()</text>
-        <line x1="220" y1="110" x2="220" y2="150" class="uml-arrow-self" marker-end="url(#arrow)"/>
-        <path d="M220,150 C160,170 160,60 190,45" class="uml-arrow-self" fill="none" marker-end="url(#arrow)"/>
-        <text x="60" y="165" class="uml-note">calls getInstance() on itself to create/return the one instance</text>
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" class="uml-arrowhead"/>
-          </marker>
-        </defs>
-      </svg>`,
-    participants: [
-      { name: "Singleton", desc: "Defines the getInstance() operation that lets clients access its unique instance. Responsible for creating and holding its own sole instance." },
-    ],
-    collaboration:
-      "Clients access the Singleton instance exclusively through the class's getInstance() operation. They never call a public constructor directly.",
-    consequences: [
-      "Controlled access to the sole instance, since the class encapsulates it.",
-      "Reduced namespace pollution compared to global variables.",
-      "Permits refinement — the Singleton class can be subclassed, and the app can be configured with an instance of the extended class at runtime.",
-      "Permits a variable number of instances if requirements change later, since the access mechanism is already encapsulated.",
-      "Can make unit testing harder, since the single shared instance carries state across tests unless explicitly reset.",
-    ],
-    implementations: [
-      {
-        language: "JavaScript",
-        classes: [
-          {
-            name: "Singleton",
-            code:
-`class Singleton {
-  static #instance;
-
-  constructor() {
-    if (Singleton.#instance) {
-      throw new Error("Use Singleton.getInstance()");
-    }
-    this.createdAt = Date.now();
-  }
-
-  static getInstance() {
-    if (!Singleton.#instance) {
-      Singleton.#instance = new Singleton();
-    }
-    return Singleton.#instance;
-  }
-
-  singletonOperation() {
-    return \`instance created at \${this.createdAt}\`;
-  }
-}
-
-// usage
-const a = Singleton.getInstance();
-const b = Singleton.getInstance();
-console.log(a === b); // true`,
-          },
-        ],
-      },
-      {
-        language: "Java",
-        classes: [
-          {
-            name: "Singleton",
-            code:
-`public final class Singleton {
-    private static volatile Singleton instance;
-    private final long createdAt;
-
-    private Singleton() {
-        this.createdAt = System.currentTimeMillis();
-    }
-
-    public static Singleton getInstance() {
-        if (instance == null) {
-            synchronized (Singleton.class) {
-                if (instance == null) {
-                    instance = new Singleton();
-                }
-            }
-        }
-        return instance;
-    }
-
-    public long singletonOperation() {
-        return createdAt;
-    }
-}`,
-          },
-        ],
-      },
-      {
-        language: "Python",
-        classes: [
-          {
-            name: "Singleton",
-            code:
-`class Singleton:
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance.created_at = None
-        return cls._instance
-
-    def singleton_operation(self):
-        return f"instance id: {id(self)}"
-
-
-a = Singleton()
-b = Singleton()
-assert a is b`,
-          },
-        ],
-      },
-    ],
-    knownUses: [
-      "Runtime environments that expose a single logging service instance.",
-      "Application-wide configuration objects loaded once from disk or environment variables.",
-      "Connection pool managers, where creating a second pool would waste resources.",
-    ],
-    related: ["adapter"],
   },
+  // ============================================================
 
   // ============================================================
   // ADAPTER — Structural
@@ -457,154 +317,81 @@ console.log(shape.draw());`,
   // OBSERVER — Behavioral
   // ============================================================
   {
-    id: "observer",
-    name: "Observer",
-    category: "behavioral",
-    difficulty: 2,
-    summary: "Define a one-to-many dependency so that when one object changes state, all its dependents are notified automatically.",
-    intent:
-      "Define a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.",
-    motivation:
-      "Splitting a system into cooperating classes has a recurring side effect: you need to keep related objects consistent without making the classes tightly coupled. A spreadsheet and a bar chart might both display the same underlying data — the moment the data changes, both views must refresh, but the data object shouldn't need to know the concrete classes of every view watching it. Observer decouples the subject (the data) from its observers (the views): the subject only knows it has a list of objects implementing a simple Update interface.",
-    applicability: [
-      "A change to one object requires changing an unknown, open-ended number of others.",
-      "An object should be able to notify other objects without knowing who those objects are — minimizing coupling.",
-      "An abstraction has two aspects, one dependent on the other; encapsulating each in a separate object lets you vary and reuse them independently.",
-    ],
-    structureSvg: `
-      <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg" class="uml-svg">
-        ${svgBox(30, 20, 150, 90, "Subject", "")}
-        <text x="40" y="90" class="uml-method">+ attach(o)</text>
-        <text x="40" y="104" class="uml-method">+ notify()</text>
-        ${svgBox(280, 20, 160, 70, "Observer", "«interface»")}
-        <text x="292" y="72" class="uml-method">+ update()</text>
-        <line x1="180" y1="60" x2="280" y2="55" class="uml-line" stroke-dasharray="4 3" marker-end="url(#arrow3)"/>
-        <text x="195" y="45" class="uml-note" font-size="9">notifies *</text>
-        ${svgBox(30, 150, 150, 70, "ConcreteSubject", "")}
-        <line x1="105" y1="150" x2="105" y2="110" class="uml-arrow-self" stroke-dasharray="4 3"/>
-        ${svgBox(280, 150, 160, 70, "ConcreteObserver", "")}
-        <text x="292" y="200" class="uml-method">+ update()</text>
-        <line x1="360" y1="150" x2="360" y2="90" class="uml-arrow-self" stroke-dasharray="4 3"/>
-        <defs>
-          <marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" class="uml-arrowhead"/>
-          </marker>
-        </defs>
-      </svg>`,
-    participants: [
-      { name: "Subject", desc: "Knows its observers (any number may observe it). Provides an interface to attach and detach observers." },
-      { name: "Observer", desc: "Defines an updating interface for objects that should be notified of changes in a subject." },
-      { name: "ConcreteSubject", desc: "Stores state of interest to ConcreteObserver objects, and sends a notification when its state changes." },
-      { name: "ConcreteObserver", desc: "Maintains a reference to a ConcreteSubject, stores state that should stay consistent with the subject's, and implements the Observer update interface." },
-    ],
-    collaboration:
-      "ConcreteSubject notifies its observers whenever a change occurs that could make its state and its observers' state inconsistent. After being notified, a ConcreteObserver may query the subject for the new state it needs to reconcile its own.",
-    consequences: [
-      "Abstract coupling between Subject and Observer — a subject only knows it has a list of observers, each conforming to the simple Observer interface.",
-      "Supports broadcast communication — notification isn't targeted at particular receivers.",
-      "Unexpected updates can cascade, since observers have no knowledge of one another's presence or cost.",
-    ],
-    implementations: [
-      {
-        language: "JavaScript",
-        classes: [
-          {
-            name: "Subject",
-            code:
-`class Subject {
-  #observers = new Set();
-
-  attach(observer) { this.#observers.add(observer); }
-  detach(observer) { this.#observers.delete(observer); }
-
-  notify(state) {
-    for (const observer of this.#observers) observer.update(state);
-  }
-}`,
-          },
-          {
-            name: "ConcreteSubject",
-            code:
-`class WeatherStation extends Subject {
-  #temperature = 0;
-
-  setTemperature(value) {
-    this.#temperature = value;
-    this.notify({ temperature: value });
-  }
-}`,
-          },
-          {
-            name: "ConcreteObserver",
-            code:
-`class Display {
-  constructor(name) { this.name = name; }
-  update(state) {
-    console.log(\`[\${this.name}] temp is now \${state.temperature}\`);
-  }
+  "id": "observer",
+  "name": "Observer",
+  "category": "behavioral",
+  "difficulty": 2,
+  "summary": "Boardcast changes across all the subscribers",
+  "intent": "Defines a one-to-many dependency between objects so that when one object (the Subject/Observable) changes state, all of its dependents (the Observers) are notified and updated automatically.",
+  "motivation": "Imagine you are building a Weather Station application. You have a WeatherData object that tracks temperature, humidity, and barometric pressure. You also have multiple display elements (Current Conditions, Weather Statistics, and a Simple Forecast) that need to update whenever the weather data changes.\n\nIf you hardcode the display updates inside the WeatherData class, you tightly couple the data to the displays. Every time you want to add or remove a display, you have to modify the core WeatherData code. The Observer pattern solves this by creating a \"Publisher-Subscriber\" model. The WeatherData (Observable) simply maintains a list of interested subscribers (Observers). When the weather changes, it iterates through the list and announces, \"Here is the new data!\" It doesn't need to know anything about the concrete display classes, achieving loose coupling.",
+  "applicability": [
+    "A change to one object requires changing others, and you don't know exactly how many objects need to be changed dynamically.",
+    "An object needs to notify other objects without making assumptions about who those objects are (you want to avoid tightly coupled classes).",
+    "You are building user interfaces (event listeners), triggering notifications, or implementing the Model-View-Controller (MVC) architecture."
+  ],
+  "structureSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 400\" width=\"100%\" height=\"100%\">\n  <style>\n    .box { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; rx: 5; }\n    .text-title { font-family: sans-serif; font-size: 16px; font-weight: bold; fill: #212529; text-anchor: middle; }\n    .text-body { font-family: sans-serif; font-size: 12px; fill: #495057; }\n    .line { stroke: #343a40; stroke-width: 2; fill: none; }\n    .arrow { fill: #343a40; }\n    .dashed { stroke-dasharray: 5,5; }\n  </style>\n\n  <!-- Interfaces -->\n  <!-- Subject Interface -->\n  <rect x=\"50\" y=\"30\" width=\"220\" height=\"100\" class=\"box\" />\n  <text x=\"160\" y=\"55\" class=\"text-title\">&lt;&lt;interface&gt;&gt;</text>\n  <text x=\"160\" y=\"75\" class=\"text-title\">Subject (Observable)</text>\n  <line x1=\"50\" y1=\"85\" x2=\"270\" y2=\"85\" class=\"line\" />\n  <text x=\"60\" y=\"105\" class=\"text-body\">+ registerObserver(o: Observer)</text>\n  <text x=\"60\" y=\"120\" class=\"text-body\">+ removeObserver(o: Observer)</text>\n  <text x=\"60\" y=\"135\" class=\"text-body\">+ notifyObservers()</text> <!-- Fixed y-coordinate -->\n\n  <!-- Observer Interface -->\n  <rect x=\"450\" y=\"30\" width=\"220\" height=\"80\" class=\"box\" />\n  <text x=\"560\" y=\"55\" class=\"text-title\">&lt;&lt;interface&gt;&gt;</text>\n  <text x=\"560\" y=\"75\" class=\"text-title\">Observer</text>\n  <line x1=\"450\" y1=\"85\" x2=\"670\" y2=\"85\" class=\"line\" />\n  <text x=\"460\" y=\"105\" class=\"text-body\">+ update()</text>\n\n  <!-- Implementations -->\n  <!-- Concrete Subject -->\n  <rect x=\"50\" y=\"220\" width=\"220\" height=\"110\" class=\"box\" />\n  <text x=\"160\" y=\"245\" class=\"text-title\">WeatherData</text>\n  <line x1=\"50\" y1=\"255\" x2=\"270\" y2=\"255\" class=\"line\" />\n  <text x=\"60\" y=\"275\" class=\"text-body\">- observers: List&lt;Observer&gt;</text>\n  <text x=\"60\" y=\"290\" class=\"text-body\">- temperature: float</text>\n  <line x1=\"50\" y1=\"300\" x2=\"270\" y2=\"300\" class=\"line\" />\n  <text x=\"60\" y=\"320\" class=\"text-body\">+ getTemperature()</text>\n\n  <!-- Concrete Observer -->\n  <rect x=\"450\" y=\"220\" width=\"220\" height=\"90\" class=\"box\" />\n  <text x=\"560\" y=\"245\" class=\"text-title\">CurrentConditionsDisplay</text>\n  <line x1=\"450\" y1=\"255\" x2=\"670\" y2=\"255\" class=\"line\" />\n  <text x=\"460\" y=\"275\" class=\"text-body\">- subject: Subject</text>\n  <line x1=\"450\" y1=\"285\" x2=\"670\" y2=\"285\" class=\"line\" />\n  <text x=\"460\" y=\"305\" class=\"text-body\">+ update()</text>\n\n  <!-- Inheritance Arrows (Dashed for interfaces) -->\n  <path d=\"M 160 220 L 160 130\" class=\"line dashed\" />\n  <polygon points=\"160,130 155,145 165,145\" class=\"arrow\" />\n\n  <path d=\"M 560 220 L 560 110\" class=\"line dashed\" />\n  <polygon points=\"560,110 555,125 565,125\" class=\"arrow\" />\n\n  <!-- Association Arrow (Subject knows Observers) -->\n  <path d=\"M 270 80 L 440 80\" class=\"line\" />\n  <polygon points=\"450,80 435,75 435,85\" class=\"arrow\" />\n  <text x=\"310\" y=\"70\" class=\"text-body\">observes &gt;</text>\n</svg>",
+  "participants": [
+    {
+      "name": "Subject (Observable)",
+      "desc": "An interface or abstract class that provides methods to attach and detach Observer objects."
+    },
+    {
+      "name": "Observer",
+      "desc": "An interface that defines an update() method, which the Subject calls when its state changes."
+    },
+    {
+      "name": "ConcreteSubject",
+      "desc": "Stores the state of interest. Sends a notification to its registered Observers when its state changes."
+    },
+    {
+      "name": "ConcreteObserver",
+      "desc": "Maintains a reference to a ConcreteSubject, implements the Observer interface, and ensures its state stays synchronized with the subject's state upon receiving an update."
+    }
+  ],
+  "collaboration": "1.The ConcreteObserver registers itself with the ConcreteSubject.\n2. The state of the ConcreteSubject changes.\n3.The ConcreteSubject iterates through its list of registered observers and calls their update() methods.\n4.The ConcreteObserver receives the notification, optionally queries the ConcreteSubject for the new data (if not passed directly in the update method), and updates itself.",
+  "consequences": [
+    "Loose Coupling: The Subject only knows that an observer implements a specific interface. It doesn't know the concrete class of the observer, what it does, or how it works.",
+    "Dynamic Relationships: Observers can be added, removed, or swapped out at runtime without modifying the Subject.",
+    "Open/Closed Principle: You can introduce new subscriber classes without modifying the publisher's code.",
+    "Memory Leaks (Lapsed Listener Problem): If observers are not explicitly deregistered when they are no longer needed, the Subject will keep a strong reference to them, preventing garbage collection.",
+    "Unintended Cascades: A small change in the Subject might trigger an unexpected chain reaction of updates across a massive tree of observers, slowing down performance.",
+    "Order of Updates: Observers are notified in an arbitrary order. If they depend on a specific execution sequence, bugs can arise."
+  ],
+  "implementations": [
+    {
+      "language": "Java",
+      "classes": [
+        {
+          "name": "Subject",
+          "code": "public interface Subject {\n    void registerObserver(Observer o);\n    void removeObserver(Observer o);\n    void notifyObservers();\n}"
+        },
+        {
+          "name": "Observer",
+          "code": "public interface Observer {\n    // Note: This is the \"Push\" model where data is sent to the observer.\n    void update(float temp, float humidity, float pressure);\n}"
+        },
+        {
+          "name": "WeatherData",
+          "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class WeatherData implements Subject {\n    private List<Observer> observers;\n    private float temperature;\n    private float humidity;\n    private float pressure;\n\n    public WeatherData() {\n        observers = new ArrayList<>();\n    }\n\n    public void registerObserver(Observer o) {\n        observers.add(o);\n    }\n\n    public void removeObserver(Observer o) {\n        int i = observers.indexOf(o);\n\n        if (i >= 0) {\n            observers.remove(i);\n        }\n    }\n\n    public void notifyObservers() {\n        for (Observer observer : observers) {\n            observer.update(temperature, humidity, pressure);\n        }\n    }\n\n    public void measurementsChanged() {\n        notifyObservers();\n    }\n\n    public void setMeasurements(\n        float temperature,\n        float humidity,\n        float pressure\n    ) {\n        this.temperature = temperature;\n        this.humidity = humidity;\n        this.pressure = pressure;\n\n        measurementsChanged();\n    }\n}"
+        },
+        {
+          "name": "CurrentConditionsDisplay",
+          "code": "public class CurrentConditionsDisplay implements Observer {\n    private float temperature;\n    private float humidity;\n    private Subject weatherData;\n\n    public CurrentConditionsDisplay(Subject weatherData) {\n        this.weatherData = weatherData;\n        weatherData.registerObserver(this);\n    }\n\n    public void update(float temperature, float humidity, float pressure) {\n        this.temperature = temperature;\n        this.humidity = humidity;\n        display();\n    }\n\n    public void display() {\n        System.out.println(\n            \"Current conditions: \"\n            + temperature\n            + \"F degrees and \"\n            + humidity\n            + \"% humidity\"\n        );\n    }\n}"
+        }
+      ]
+    }
+  ],
+  "knownUses": [
+    "Java APIs: java.util.Observable and java.util.Observer (Deprecated in Java 9+ in favor of the java.beans.PropertyChangeListener or modern Reactive streams).",
+    "UI Frameworks: Button click listeners and event handlers in Swing (ActionListener), Android (OnClickListener), and JavaScript DOM events.",
+    "Reactive Programming: Libraries like RxJava, RxJS, and Apple's Combine framework are massive, super-charged extensions of the Observer pattern.",
+    "MVC Architecture: The Model notifies the View components when data changes so the UI can redraw."
+  ],
+  "related": [
+    "pub-sub",
+    "mediator",
+    "singleton"
+  ]
 }
-
-const station = new WeatherStation();
-station.attach(new Display("Phone"));
-station.attach(new Display("Watch"));
-station.setTemperature(24);`,
-          },
-        ],
-      },
-      {
-        language: "Python",
-        classes: [
-          {
-            name: "Subject",
-            code:
-`class Subject:
-    def __init__(self):
-        self._observers = []
-
-    def attach(self, observer):
-        self._observers.append(observer)
-
-    def detach(self, observer):
-        self._observers.remove(observer)
-
-    def notify(self, state):
-        for observer in self._observers:
-            observer.update(state)`,
-          },
-          {
-            name: "ConcreteSubject",
-            code:
-`class WeatherStation(Subject):
-    def set_temperature(self, value):
-        self._temperature = value
-        self.notify({"temperature": value})`,
-          },
-          {
-            name: "ConcreteObserver",
-            code:
-`class Display:
-    def __init__(self, name):
-        self.name = name
-
-    def update(self, state):
-        print(f"[{self.name}] temp is now {state['temperature']}")
-
-
-station = WeatherStation()
-station.attach(Display("Phone"))
-station.attach(Display("Watch"))
-station.set_temperature(24)`,
-          },
-        ],
-      },
-    ],
-    knownUses: [
-      "DOM event listeners (addEventListener) are a direct application of Observer.",
-      "MVC frameworks, where views observe a model and re-render on change.",
-      "Reactive state libraries (e.g. store subscriptions in Redux, Vue's reactivity system).",
-    ],
-    related: ["singleton", "adapter"],
-  },
 ];
 
 const ANTIPATTERNS = [
