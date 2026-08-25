@@ -8,14 +8,16 @@ and it works.
 ## Structure
 
 ```
-index.html        Problem Solver Homepage: live search, problem shortcuts, decision matrix & cards
-pattern.html       Detail page: reads ?id=xxx and renders pattern/anti-pattern sections
-add-pattern.html   Interactive form: builds Pattern & Anti-Pattern JS objects & JSON
-css/style.css      Theme on top of NES.css (scanline background, UML styling, problem solver UI)
-js/data.js         <-- THE ONLY FILE YOU NEED TO EDIT to add entries
-js/home.js         Powers problem search, quick problem chips, realm filtering & cards
-js/pattern.js       Renders detail pages from data.js
-js/add-pattern.js   Powers the form switcher, JS/JSON generator, clipboard copy & live preview
+index.html          Problem Solver Homepage: live search, problem shortcuts, decision matrix & cards
+pattern.html         Detail page: reads ?id=xxx and renders pattern/anti-pattern sections
+add-pattern.html     Interactive form: builds Pattern & Anti-Pattern JS objects & JSON
+css/style.css        Theme on top of NES.css (scanline background, UML styling, problem solver UI)
+js/pattern-data.js   <-- Contains PATTERNS array (design pattern data)
+js/antipattern.js    <-- Contains ANTIPATTERNS array (anti-pattern data)
+js/data.js           Category configurations, SVG helper functions & lookup helpers
+js/home.js           Powers problem search, quick problem chips, realm filtering & cards
+js/pattern.js         Renders detail pages from pattern-data.js and antipattern.js
+js/add-pattern.js     Powers the form switcher, JS/JSON generator, clipboard copy & live preview
 ```
 
 ## Adding Patterns & Anti-Patterns
@@ -24,7 +26,7 @@ You can use the built-in **Codex Entry Generator** at `add-pattern.html` (or cli
 1. Select **Design Pattern** or **Anti-Pattern**.
 2. Fill out the fields interactively (or click **Load Example Pattern** / **Load Example Anti-Pattern** for a quick demo).
 3. Click **Toggle Live Preview** to preview how it looks.
-4. Click **Copy JS Object** to copy the formatted code directly to your clipboard and paste it into `PATTERNS` or `ANTIPATTERNS` in `js/data.js`.
+4. Click **Copy JS Object** to copy the formatted code directly to your clipboard and paste design patterns into `js/pattern-data.js` or anti-patterns into `js/antipattern.js`.
 
 ---
 

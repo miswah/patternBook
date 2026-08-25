@@ -374,8 +374,8 @@ document.addEventListener("DOMContentLoaded", () => {
     updateOutput();
     const jsCode = formatJsObject(currentObj);
     navigator.clipboard.writeText(jsCode).then(() => {
-      const targetArray = currentObj.type === "antipattern" ? "ANTIPATTERNS" : "PATTERNS";
-      setCopyStatus(`✓ Copied JS Object (paste into ${targetArray} in data.js)!`);
+      const targetFile = currentObj.type === "antipattern" ? "antipattern.js" : "pattern-data.js";
+      setCopyStatus(`✓ Copied JS Object (paste into js/${targetFile})!`);
     }).catch(err => {
       setCopyStatus("Failed to copy automatically. Please copy from code box.", false);
     });
